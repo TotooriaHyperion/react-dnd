@@ -1,28 +1,47 @@
-Overview
+Overview（概要）
 ===================
 
 React DnD is unlike most of the drag and drop libraries out there, and it can be intimidating if you've never used it before. However, once you get a taste of a few concepts at the heart of its design, it starts to make sense. I suggest you read about these concepts before the rest of the docs.
 
+React DnD 与其他的诸多拖放（Drag/Drop）工具库不同，如果你从未使用过它你可能会觉得这玩意太高深莫测了。但是，一旦你了解到它到部分核心设计思想，它就会变得容易理解。我建议你再阅读文档的其他内容之前，先阅读这一部分概要。
+
 Some of these concepts resemble the [Flux](http://facebook.github.io/flux/) and [Redux](https://github.com/reactjs/react-redux) architectures.  
 This is not a coincidence, as React DnD uses Redux internally.
 
-### Backends
+（React DnD的）一些设计思想与 [Flux](http://facebook.github.io/flux/) and [Redux](https://github.com/reactjs/react-redux) 体系相似.  
+这不是一个巧合, React Dnd 内部就使用了redux.
+
+### Backends（背景）
 
 React DnD is built on top of the [HTML5 drag and drop API](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_and_drop). It is a reasonable default because it screenshots the dragged DOM node and uses it as a “drag preview” out of the box. It's handy that you don't have to do any drawing as the cursor moves. This API is also the only way to handle the file drop events.
 
+React DnD 是建立在 [HTML5 drag and drop API](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_and_drop)的基础之上的. 这是一个很棒的API，它捕捉了被拖拽的DOM节点的快照，并将其作为一个被拖动的预览浮层. 这种设计使你不需要重复渲染一个一模一样的元素并且让它跟着你的鼠标跑. 这个API也是处理文件拖放事件的唯一方式.
+
 Unfortunately, the HTML5 drag and drop API also has some downsides. It does not work on touch screens, and it provides less customization opportunities on IE than in other browsers.
+
+不幸的事, HTML5 drag and drop API 也有一些缺点. 它不能在触摸屏上使用, 而且它再IE浏览器上提供比其它浏览器更少的定制化特性.
 
 This is why **the HTML5 drag and drop support is implemented in a pluggable way** in React DnD. You don't have to use it. You can write a different implementation, based on touch events, mouse events, or something else entirely. Such pluggable implementations are called the *backends* in React DnD. Only the [HTML5 backend](docs-html5-backend.html) comes with the library, but more may be added in the future.
 
+这就是为什么 **HTML5 drag and drop 的支持被以插件的形式集成** 在 React DnD 中. 你并不是必须使用这个插件. 你完全可以自己写一个不同的实现, 基于触摸事件, 鼠标事件, 或者其它完全不同的东西. 这个插件在 React DnD 中被称为 *backends*. 目前只有 [HTML5 backend](docs-html5-backend.html) 被打包在 React DnD 中, 将来可能会添加更多.
+
 The backends perform a similar role to that of React's synthetic event system: **they abstract away the browser differences and process the native DOM events.** Despite the similarities, React DnD backends do not have a dependency on React or its synthetic event system. Under the hood, all the backends do is translate the DOM events into the internal Redux actions that React DnD can process.
 
-### Items and Types
+这个backends的表现和 React 的模拟事件系统相似: **它通过抽象，抹平了浏览器的差别，并代替你处理原生DOM事件.** 除了这些相同点, React DnD backends 并不依赖React以及它的模拟事件系统. 在底层, 所有的 backends 只是把原生DOM事件处理为 React DnD 可以处理的内部Redux Action.
+
+### Items and Types（拖拽单元和类型） -- 不好翻译，后文均使用Item。
 
 Like Flux (or Redux), React DnD uses data, and not the views, as the source of truth. When you drag something across the screen, we don't say that a component, or a DOM node is being dragged. Instead, we say that an *item* of a certain *type* is being dragged.
 
+就像 Flux (or Redux)一样, React DnD 操作数据, 而不是直接操作视图. 当你将什么东西在屏幕上拖动, 我们并不是说有一个组件或者DOM节点正在被拖动. 而是, 一个特定*type（类型）*的*item* 正在被拖动.
+
 What is an item? An *item* is a plain JavaScript object *describing* what's being dragged. For example, in a Kanban board application, when you drag a card, an item might look like `{ cardId: 42 }`. In a Chess game, when you pick up a piece, the item might look like `{ fromCell: 'C5', piece: 'queen' }`. **Describing the dragged data as a plain object helps you keep the components decoupled and unaware of each other.**
 
+什么是 item? 一个 *item* 是一个简单的JS对象 *描述* 什么东西正在被拖动. 例如, 在一个看板应用（Kanban board Application）中, 当你拖拽一个卡片, 它所对应的 item 看起来像 `{ cardId: 42 }`. 在象棋游戏中, 当你拿起一粒棋子, 它所对应的 item 大概就是 `{ fromCell: 'C5', piece: 'queen' }`. **用一个简单JS对象描述正在被拖动的数据，可以让你的组件与其它组件相互解耦，并且无需关心彼此。**
+
 What is a type, then? A *type* is a string (or a [symbol](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Symbol)) uniquely identifying *a whole class of items* in your application. In a Kanban board app, you might have a `'card'` type representing the draggable cards and a `'list'` type for the draggable lists of those cards. In Chess, you might only have a single `'piece'` type.
+
+那么，什么是 type（类型）? 一个 *type* 是一个字符串 (或者是一个 [symbol](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Symbol)) 在你的应用中，特定地表示 *一系列（同种类型）的items* . 在一个看板APP中, 你可能需要一个 `'card'` 类型代表可以被拖拽的卡片， 以及一个 `'list'` 类型表示可以被拖拽的卡片列表. 在象棋中, 你可能只需要一个 `'piece'` 类型，因为可以拖拽的只有棋子这一种东西.
 
 Types are useful because, as your app grows, you might want to make more things draggable, but you don't necessarily want all the existing drop targets to suddenly start reacting to the new items. **The types let you specify which drag sources and drop targets are compatible.** You're probably going to have an enumeration of the type constants in your application, just like you may have an enumeration of the Redux action types.
 
