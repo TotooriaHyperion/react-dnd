@@ -28,7 +28,7 @@
 <li><p><strong><code>canDrop(props, monitor)</code></strong>: Optional. Use it to specify whether the drop target is able to accept the item. If you want to always allow it, just omit this method. Specifying it is handy if you&#39;d like to disable dropping based on some predicate over <code>props</code> or <code>monitor.getItem()</code>. <em>Note: You may not call <code>monitor.canDrop()</code> inside this method.</em></p>
 </li>
 </ul>
-<p><strong>The spec offers no methods to handle enter or leave events by purpose.</strong> Instead, return the result of <code>monitor.isOver()</code> call from your <em>collecting function</em>, so that you can use <code>componentWillReceiveProps</code> or <code>componentDidUpdate</code> React hooks to process the entering and the leaving events in your component. You may also check <code>monitor.isOver({ shallow: true })</code> if don&#39;t want the nested drop targets to count.</p>
+<p><strong>The spec offers no methods to handle enter or leave events by purpose.</strong> Instead, return the result of <code>monitor.isOver()</code> call from your <em>collecting function</em>, so that you can use the <code>componentDidUpdate</code> React hook to process the entering and the leaving events in your component. You may also check <code>monitor.isOver({ shallow: true })</code> if don&#39;t want the nested drop targets to count.</p>
 <h4>Specification Method Parameters<a id="specification-method-parameters">&nbsp;</a></h4><ul>
 <li><p><strong><code>props</code></strong>: Your component&#39;s current props.</p>
 </li>
@@ -92,7 +92,7 @@
     <span class="token comment" spellcheck="true">// This is fired very often and lets you perform side effects
 </span>    <span class="token comment" spellcheck="true">// in response to the hover. You can't handle enter and leave
 </span>    <span class="token comment" spellcheck="true">// here—if you need them, put monitor.isOver() into collect() so you
-</span>    <span class="token comment" spellcheck="true">// can just use componentWillReceiveProps() to handle enter/leave.
+</span>    <span class="token comment" spellcheck="true">// can just use componentDidUpdate() to handle enter/leave.
 </span>
     <span class="token comment" spellcheck="true">// You can access the coordinates if you need them
 </span>    <span class="token keyword" >const</span> clientOffset <span class="token operator" >=</span> monitor<span class="token punctuation" >.</span><span class="token function" >getClientOffset<span class="token punctuation" >(</span></span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
@@ -136,16 +136,16 @@
   itemType<span class="token punctuation" >:</span> monitor<span class="token punctuation" >.</span><span class="token function" >getItemType<span class="token punctuation" >(</span></span><span class="token punctuation" >)</span>
 <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >)</span>
 <span class="token keyword" >export</span> <span class="token keyword" >default</span> <span class="token keyword" >class</span> <span class="token class-name" >ChessSquare</span> <span class="token punctuation" >{</span>
-  <span class="token function" >componentWillReceiveProps<span class="token punctuation" >(</span></span>nextProps<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-    <span class="token block-keyword" >if</span> <span class="token punctuation" >(</span><span class="token operator" >!</span><span class="token var" >this</span><span class="token punctuation" >.</span>props<span class="token punctuation" >.</span>isOver <span class="token operator" >&amp;&amp;</span> nextProps<span class="token punctuation" >.</span>isOver<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+  <span class="token function" >componentDidUpdate<span class="token punctuation" >(</span></span>prevProps<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    <span class="token block-keyword" >if</span> <span class="token punctuation" >(</span><span class="token operator" >!</span>prevProps<span class="token punctuation" >.</span>isOver <span class="token operator" >&amp;&amp;</span> <span class="token var" >this</span><span class="token punctuation" >.</span>props<span class="token punctuation" >.</span>isOver<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
       <span class="token comment" spellcheck="true">// You can use this as enter handler
 </span>    <span class="token punctuation" >}</span>
 
-    <span class="token block-keyword" >if</span> <span class="token punctuation" >(</span><span class="token var" >this</span><span class="token punctuation" >.</span>props<span class="token punctuation" >.</span>isOver <span class="token operator" >&amp;&amp;</span> <span class="token operator" >!</span>nextProps<span class="token punctuation" >.</span>isOver<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    <span class="token block-keyword" >if</span> <span class="token punctuation" >(</span>prevProps<span class="token punctuation" >.</span>isOver <span class="token operator" >&amp;&amp;</span> <span class="token operator" >!</span><span class="token var" >this</span><span class="token punctuation" >.</span>props<span class="token punctuation" >.</span>isOver<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
       <span class="token comment" spellcheck="true">// You can use this as leave handler
 </span>    <span class="token punctuation" >}</span>
 
-    <span class="token block-keyword" >if</span> <span class="token punctuation" >(</span><span class="token var" >this</span><span class="token punctuation" >.</span>props<span class="token punctuation" >.</span>isOverCurrent <span class="token operator" >&amp;&amp;</span> <span class="token operator" >!</span>nextProps<span class="token punctuation" >.</span>isOverCurrent<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    <span class="token block-keyword" >if</span> <span class="token punctuation" >(</span>prevProps<span class="token punctuation" >.</span>isOverCurrent <span class="token operator" >&amp;&amp;</span> <span class="token operator" >!</span><span class="token var" >this</span><span class="token punctuation" >.</span>props<span class="token punctuation" >.</span>isOverCurrent<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
       <span class="token comment" spellcheck="true">// You can be more specific and track enter/leave
 </span>      <span class="token comment" spellcheck="true">// shallowly, not including nested targets
 </span>    <span class="token punctuation" >}</span>
@@ -209,5 +209,5 @@ type <span class="token qualifier" >Drop</span><span class="token qualifier" >Ta
   options<span class="token punctuation" >:</span> <span class="token operator" >?</span><span class="token qualifier" >Drop</span><span class="token qualifier" >Target</span><span class="token qualifier" >Options</span>
 <span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >(</span>
   component<span class="token punctuation" >:</span> <span class="token qualifier" >Your</span><span class="token qualifier" >React</span><span class="token qualifier" >Class</span>
-<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token qualifier" >React</span><span class="token qualifier" >Class</span></code></div></div></div></div></div><script>window.INITIAL_PROPS = {"location":"docs-drop-target.html","devMode":false,"files":{"main.js":"main-3079f62ae5d91ce9fc84.js"}};
-</script><script src="main-3079f62ae5d91ce9fc84.js"></script></body></html>
+<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token qualifier" >React</span><span class="token qualifier" >Class</span></code></div></div></div></div></div><script>window.INITIAL_PROPS = {"location":"docs-drop-target.html","devMode":false,"files":{"main.js":"main-e90e3c24525569a50d03.js"}};
+</script><script src="main-e90e3c24525569a50d03.js"></script></body></html>
